@@ -129,11 +129,11 @@ Internet
     ▼
 [Nginx Proxy Manager] ──────── LXC Proxmox (10.224.100.21)
     │
-    ├──▶ [n8n]          VM Ubuntu (10.224.100.12) — port 5678
+    ├──▶ [n8n]          VM Ubuntu (10.224.100.xx) — port 5678
     ├──▶ [GitLab CE]    VM Ubuntu (10.224.100.xx) — port 80/443
     └──▶ [Autres services self-hosted...]
 
-[Synology NAS] ◀── qBittorrent (192.168.0.113:8080)
+[Synology NAS] ◀── qBittorrent (192.168.0.xx:8080)
 ```
 
 ---
