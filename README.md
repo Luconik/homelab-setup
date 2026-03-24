@@ -6,13 +6,14 @@
 
 **Nicolas Culetto — Pre-Sales Systems Engineer @ HPE Aruba Networking**
 
-*Infrastructure as Code · Self-hosted · NetDevOps · Sécurité réseau*
+*Infrastructure as Code · Self-hosted · NetDevOps · Network & Security*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-nicolasculetto-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nicolasculetto/)
 [![GitHub](https://img.shields.io/badge/GitHub-Luconik-181717?style=flat-square&logo=github)](https://github.com/Luconik)
 [![Proxmox](https://img.shields.io/badge/Hyperviseur-Proxmox_VE-E57000?style=flat-square&logo=proxmox)](https://www.proxmox.com/)
 [![Docker](https://img.shields.io/badge/Conteneurs-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![n8n](https://img.shields.io/badge/Automatisation-n8n-EA4B71?style=flat-square&logo=n8n)](https://n8n.io/)
+[![EVE-NG](https://img.shields.io/badge/Emulation-EVE--NG-FF6600?style=flat-square)](https://www.eve-ng.net/)
 
 ---
 
@@ -29,144 +30,152 @@ Ce dépôt documente l'infrastructure complète de mon homelab personnel, constr
 
 L'objectif est double :
 - **Personnel** : avoir une infra reproductible, documentée et versionnée
-- **Communautaire** : partager des guides terrain en français, notamment autour de l'écosystème **HPE Aruba Networking** et des outils DevOps/NetOps
+- **Communautaire** : partager des guides terrain en français, notamment autour de l'écosystème **HPE Aruba Networking** et des outils DevOps/SecOps
 
-> **EN** — This repository documents my personal homelab infrastructure built on Proxmox VE. It covers OS installation, EVE-NG network emulation, Docker-based automation with n8n, and security hardening. All guides are written in French with English summaries.
-
----
-
-## Stack technique / Tech Stack
-
-| Couche | Technologie |
-|---|---|
-| Hyperviseur | Proxmox VE (Intel NUC) |
-| Réseau exposé | Nginx Proxy Manager + Cloudflare DNS + SSL Let's Encrypt |
-| Stockage | Synology NAS |
-| Conteneurs | Docker Compose |
-| Automatisation | n8n + PostgreSQL + Discord Bot |
-| Émulation réseau | EVE-NG Community Edition |
-| Sécurité | UFW + CrowdSec |
-| DNS / Reverse Proxy | culetto.fr (domaine perso) |
+> **EN** — This repository documents my personal homelab infrastructure built on a Proxmox VE Intel NUC. It covers virtualization, network emulation (EVE-NG), Docker-based automation with n8n, Discord bots, NAS integration (Synology), and security hardening. All guides are written in French with English summaries.
 
 ---
 
-## Structure du dépôt / Repository Structure
+## 🖥 Stack technique / Tech Stack
+
+| Composant | Technologie | Rôle |
+|-----------|-------------|------|
+| Hyperviseur | Proxmox VE (Intel NUC) | Virtualisation de l'ensemble |
+| Émulation réseau | EVE-NG | Labs HPE Aruba AOS-CX / Juniper vJunos |
+| Reverse proxy | Nginx Proxy Manager | Exposition services + SSL Let's Encrypt |
+| DNS / WAF | Cloudflare | Protection périmétrique externe |
+| Firewall host | UFW | Règles d'accès locales |
+| Automatisation | n8n (Docker) | Workflows, notifications, bots |
+| Bot Discord | Culetto-Home-Bot | Interface Discord → n8n workflows |
+| Base de données | PostgreSQL (Docker) | Backend n8n |
+| NAS | Synology | Stockage + client torrent (qBittorrent) |
+| GitLab CE | gitlab.culetto.fr | Dépôt Git + CI/CD pipelines |
+| Automation VM | automation.culetto.fr | Runner GitLab + Ansible + Terraform |
+
+---
+
+## 📁 Structure du repo
 
 ```
 homelab-setup/
-├── assets/                  # Bannière et ressources visuelles
-├── eve-ng/                  # Guides d'installation EVE-NG
-│   ├── esxi/                #   → Sur VMware ESXi
-│   └── proxmox/             #   → Sur Proxmox VE
-├── ubuntu-server/           # Guide d'installation Ubuntu Server 22.04 LTS
-├── docker/                  # Docker Compose & services self-hosted
-│   ├── n8n/                 #   → Automatisation + Discord Bot + qBittorrent
-│   └── nginx-proxy-manager/ #   → Reverse proxy + SSL
-└── security/                # Durcissement sécurité
-    ├── ufw/                 #   → Pare-feu UFW
-    └── crowdsec/            #   → IPS collaboratif CrowdSec
+├── assets/                        # Bannières et images
+├── eve-ng/
+│   ├── esxi/                      # Guide installation EVE-NG sur ESXi
+│   └── proxmox/                   # Guide installation EVE-NG sur Proxmox VE
+├── ubuntu-server/                 # Guide installation Ubuntu Server (VM Proxmox)
+├── docker/
+│   ├── n8n/                       # Stack n8n + PostgreSQL (Docker Compose)
+│   └── nginx-proxy-manager/       # Config NPM + Cloudflare SSL
+└── security/
+    ├── ufw/                       # Règles UFW recommandées
+    └── crowdsec/                  # Intégration CrowdSec (WIP)
 ```
 
 ---
 
-## Guides disponibles / Available Guides
+## 🤖 Automatisation n8n + Discord
 
-### 🖥️ [EVE-NG](./eve-ng/)
+L'une des parties les plus actives du homelab : un stack **n8n + PostgreSQL + Discord Bot** qui centralise les notifications et les actions manuelles.
 
-Déploiement d'EVE-NG Community Edition pour émulation réseau Aruba / Cisco / Juniper.
+### Architecture
 
-| Guide | Description |
-|---|---|
-| [EVE-NG sur ESXi](./eve-ng/esxi/README.md) | Installation d'EVE-NG comme VM sur VMware ESXi |
-| [EVE-NG sur Proxmox](./eve-ng/proxmox/README.md) | Installation d'EVE-NG comme VM sur Proxmox VE |
+```
+Discord (Culetto-Home-Bot)
+        │
+        ▼
+   n8n (Docker)  ◄──► PostgreSQL
+        │
+        ├──► qBittorrent (Synology NAS — 192.168.0.113)
+        ├──► Nyaa.si RSS (notifications nouveaux torrents)
+        └──► Proxmox API (scheduler VMs)
+```
 
-> **EN** — Step-by-step guides to deploy EVE-NG for network emulation (Aruba AOS-CX, Cisco IOS, Juniper vJunos). Includes OVA import, nested virtualization setup, and node configuration.
+### Workflows principaux
 
----
+| Workflow | Déclencheur | Description |
+|----------|-------------|-------------|
+| `!dl <url>` | Discord | Téléchargement manuel de torrent via qBittorrent |
+| `!skip` | Discord | Ignorer une notification torrent en attente |
+| `!status` | Discord | Statut des téléchargements actifs |
+| `!newseason` | Discord | Déclarer une nouvelle saison anime (purge auto) |
+| Nyaa RSS Notify | Scheduler | Surveillance RSS Nyaa.si → notification Discord |
+| Seasonal Purge | Scheduler | Nettoyage automatique en fin de saison |
 
-### 🐧 [Ubuntu Server](./ubuntu-server/)
-
-Installation et configuration de base d'Ubuntu Server 22.04 LTS sous Proxmox.
-
-> **EN** — Ubuntu Server 22.04 LTS installation guide: VM creation in Proxmox, OS installation, SSH hardening, static IP, and initial system configuration.
-
----
-
-### 🐳 [Docker & Automatisation](./docker/)
-
-Services self-hosted déployés via Docker Compose sur la VM Ubuntu Server.
-
-| Service | Description |
-|---|---|
-| [n8n](./docker/n8n/) | Orchestrateur de workflows + bot Discord + intégration qBittorrent |
-| [Nginx Proxy Manager](./docker/nginx-proxy-manager/) | Reverse proxy avec SSL automatique via Cloudflare |
-
-> **EN** — Self-hosted services deployed with Docker Compose: n8n workflow automation (Discord bot, scheduled tasks, PostgreSQL deduplication), and Nginx Proxy Manager with Cloudflare DNS challenge for automatic SSL.
+> 📂 Guide complet et Docker Compose → [`docker/n8n/`](docker/n8n/)
 
 ---
 
-### 🔒 [Sécurité / Security](./security/)
+## 🔐 Central NAC + Intune — HPE Aruba TechDocs
 
-Durcissement de l'exposition des services homelab sur Internet.
+Guide technique publié sur le portail officiel **HPE Aruba TechDocs** :  
+**Central NAC with Microsoft Intune UEM Onboarding**
 
-| Composant | Description |
-|---|---|
-| [UFW](./security/ufw/) | Pare-feu Linux — règles et bonnes pratiques |
-| [CrowdSec](./security/crowdsec/) | IPS collaboratif — détection et blocage d'intrusions |
+> 📖 [Lire la documentation sur HPE Aruba TechDocs](https://arubanetworking.hpe.com/techdocs/NAC/central-nac/central-nac-uem-onboarding-intune/)
 
-> **EN** — Security hardening for homelab services: UFW firewall rules, CrowdSec collaborative IPS, and Nginx Proxy Manager security configuration.
+Ce guide couvre l'intégration complète **Aruba Central NAC + Microsoft Intune** pour le déploiement de certificats SCEP en 802.1X — un cas d'usage enterprise fréquent et peu documenté en français.
+
+**Technologies couvertes :**
+- HPE Aruba Central NAC (Policy Manager)
+- Microsoft Intune (UEM) + SCEP certificate profile
+- 802.1X authentication (EAP-TLS)
+- ClearPass Policy Manager
 
 ---
 
-## Schéma d'architecture / Architecture Overview
+## 🗺 Architecture globale
 
 ```
 Internet
-    │
-    ▼
-[Cloudflare DNS + Proxy]
-    │  HTTPS / SSL Let's Encrypt
-    ▼
-[Nginx Proxy Manager] ──────── LXC Proxmox (10.224.100.21)
-    │
-    ├──▶ [n8n]          VM Ubuntu (10.224.100.xx) — port 5678
-    ├──▶ [GitLab CE]    VM Ubuntu (10.224.100.xx) — port 80/443
-    └──▶ [Autres services self-hosted...]
-
-[Synology NAS] ◀── qBittorrent (192.168.0.xx:8080)
+   │
+   ▼
+Cloudflare WAF / DNS
+   │
+   ▼
+Nginx Proxy Manager (VM Proxmox)
+   │
+   ├──► gitlab.culetto.fr       ← GitLab CE
+   ├──► automation.culetto.fr   ← Ansible + Terraform + GitLab Runner
+   ├──► n8n.culetto.fr          ← n8n automation
+   └──► pve1.culetto.fr         ← Proxmox VE (accès restreint)
+   
+Synology NAS (192.168.0.113)
+   └──► qBittorrent :8080       ← Géré par n8n workflows
 ```
 
 ---
 
-## Roadmap
+## 📚 Guides disponibles
 
-- [x] EVE-NG sur ESXi
-- [x] EVE-NG sur Proxmox
-- [x] Ubuntu Server 22.04 LTS
-- [x] Docker Compose + n8n + Discord Bot
-- [x] Nginx Proxy Manager + Cloudflare SSL
-- [x] UFW + CrowdSec
-- [ ] Guide OVA AOS-CX sur EVE-NG
-- [ ] Guide Juniper vJunos sur EVE-NG
-- [ ] GitLab CE self-hosted
-- [ ] Home Assistant integration
-
----
-
-## Dépôts liés / Related Repositories
-
-| Dépôt | Description |
-|---|---|
-| [aruba-netdevops](https://github.com/Luconik/aruba-netdevops) | Ansible + Terraform pour AOS-CX — GitLab CI/CD pipeline |
+| Section | Contenu | Statut |
+|---------|---------|--------|
+| [EVE-NG / ESXi](eve-ng/esxi/) | Installation EVE-NG sur VMware ESXi | ✅ Disponible |
+| [EVE-NG / Proxmox](eve-ng/proxmox/) | Installation EVE-NG sur Proxmox VE | ✅ Disponible |
+| [Ubuntu Server](ubuntu-server/) | Installation VM Ubuntu Server sur Proxmox | 🚧 En cours |
+| [Docker / n8n](docker/n8n/) | Stack n8n + PostgreSQL + Discord Bot | 🚧 En cours |
+| [Docker / NPM](docker/nginx-proxy-manager/) | Nginx Proxy Manager + SSL Cloudflare | 🚧 En cours |
+| [Security / UFW](security/ufw/) | Règles UFW pour homelab | 🚧 En cours |
+| [Security / CrowdSec](security/crowdsec/) | Intégration CrowdSec | 📋 Planifié |
+| [GitLab CE](docs/04-gitlab/) | Installation GitLab CE sur Proxmox | 📋 Planifié |
 
 ---
 
-## Licence / License
+## 🔗 Repos associés
 
-Ce projet est sous licence [MIT](./LICENSE).  
-Les guides sont librement réutilisables avec mention de l'auteur.
+| Repo | Description |
+|------|-------------|
+| [aruba-netdevops](https://github.com/Luconik/aruba-netdevops) | Automatisation réseau HPE Aruba AOS-CX avec Ansible, Terraform et GitLab CI/CD |
 
 ---
+
+## 📬 Contact
+
+- **LinkedIn** : [linkedin.com/in/nicolasculetto](https://www.linkedin.com/in/nicolasculetto/)
+- **Email** : nicolas@culetto.fr
+- **GitHub** : [github.com/Luconik](https://github.com/Luconik)
+
+---
+
+> Les guides sont librement réutilisables avec mention de l'auteur (CC BY 4.0).
 
 <div align="center">
 
