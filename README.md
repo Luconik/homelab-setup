@@ -17,26 +17,26 @@
 
 ---
 
-> 🇫🇷 Documentation disponible en français — English summary included in each section.  
-> 🇬🇧 Documentation written in French — English summary available in each section.
+> 🇫🇷 Documentation principale en français — un résumé en anglais est disponible dans chaque section.  
+> 🇬🇧 Main documentation in French — an English summary is available in each section.
 
 </div>
 
 ---
 
-## À propos / About
+## À propos
 
 Ce dépôt documente l'infrastructure complète de mon homelab personnel, construit autour d'un **Intel NUC sous Proxmox VE**.
 
 L'objectif est double :
-- **Personnel** : avoir une infra reproductible, documentée et versionnée
+- **Personnel** : avoir une infrastructure reproductible, documentée et versionnée
 - **Communautaire** : partager des guides terrain en français, notamment autour de l'écosystème **HPE Aruba Networking** et des outils DevOps/SecOps
 
 > **EN** — This repository documents my personal homelab infrastructure built on a Proxmox VE Intel NUC. It covers virtualization, network emulation (EVE-NG), Docker-based automation with n8n, Discord bots, NAS integration (Synology), and security hardening. All guides are written in French with English summaries.
 
 ---
 
-## 🖥 Stack technique / Tech Stack
+## Stack technique
 
 | Composant | Technologie | Rôle |
 |-----------|-------------|------|
@@ -52,9 +52,11 @@ L'objectif est double :
 | GitLab CE | gitlab.culetto.fr | Dépôt Git + CI/CD pipelines |
 | Automation VM | automation.culetto.fr | Runner GitLab + Ansible + Terraform |
 
+> **EN** — The homelab runs on a single Intel NUC with Proxmox VE as the hypervisor. Key services include EVE-NG for network emulation, n8n for workflow automation, a Discord bot for remote control, a Synology NAS for storage, and a self-hosted GitLab instance for CI/CD.
+
 ---
 
-## 📁 Structure du repo
+## Structure du dépôt
 
 ```
 homelab-setup/
@@ -71,11 +73,13 @@ homelab-setup/
     └── crowdsec/                  # Intégration CrowdSec (WIP)
 ```
 
+> **EN** — The repository is organized by technology area: EVE-NG network emulation guides, Ubuntu Server setup, Docker-based services (n8n automation stack), and security hardening (UFW, CrowdSec).
+
 ---
 
-## 🤖 Automatisation n8n + Discord
+## Automatisation n8n + Discord
 
-L'une des parties les plus actives du homelab : un stack **n8n + PostgreSQL + Discord Bot** qui centralise les notifications et les actions manuelles.
+L'une des parties les plus actives du homelab : un stack **n8n + PostgreSQL + Discord Bot** qui centralise les notifications et les actions à distance.
 
 ### Architecture
 
@@ -85,44 +89,41 @@ Discord (Culetto-Home-Bot)
         ▼
    n8n (Docker)  ◄──► PostgreSQL
         │
-        ├──► qBittorrent (Synology NAS — 192.168.0.113)
+        ├──► qBittorrent (Synology NAS)
         ├──► Nyaa.si RSS (notifications nouveaux torrents)
         └──► Proxmox API (scheduler VMs)
 ```
 
-### Workflows principaux
+### Commandes Discord disponibles
 
-| Workflow | Déclencheur | Description |
-|----------|-------------|-------------|
-| `!dl <url>` | Discord | Téléchargement manuel de torrent via qBittorrent |
-| `!skip` | Discord | Ignorer une notification torrent en attente |
-| `!status` | Discord | Statut des téléchargements actifs |
-| `!newseason` | Discord | Déclarer une nouvelle saison anime (purge auto) |
-| Nyaa RSS Notify | Scheduler | Surveillance RSS Nyaa.si → notification Discord |
-| Seasonal Purge | Scheduler | Nettoyage automatique en fin de saison |
+| Commande | Description |
+|----------|-------------|
+| `!dl <url>` | Téléchargement manuel de torrent via qBittorrent |
+| `!skip` | Ignorer une notification torrent en attente |
+| `!status` | Statut des téléchargements actifs |
+| `!newseason` | Déclarer une nouvelle saison (purge automatique) |
 
-> 📂 Guide complet et Docker Compose → [`docker/n8n/`](docker/n8n/)
+> **EN** — The n8n automation stack connects a Discord bot to qBittorrent (running on a Synology NAS), an RSS feed watcher (Nyaa.si), and the Proxmox API. Discord commands allow remote control of downloads and scheduled tasks without direct server access.
 
----
-
-## 🔐 Central NAC + Intune — HPE Aruba TechDocs
-
-Guide technique publié sur le portail officiel **HPE Aruba TechDocs** :  
-**Central NAC with Microsoft Intune UEM Onboarding**
-
-> 📖 [Lire la documentation sur HPE Aruba TechDocs](https://arubanetworking.hpe.com/techdocs/NAC/central-nac/central-nac-uem-onboarding-intune/)
-
-Ce guide couvre l'intégration complète **Aruba Central NAC + Microsoft Intune** pour le déploiement de certificats SCEP en 802.1X — un cas d'usage enterprise fréquent et peu documenté en français.
-
-**Technologies couvertes :**
-- HPE Aruba Central NAC (Policy Manager)
-- Microsoft Intune (UEM) + SCEP certificate profile
-- 802.1X authentication (EAP-TLS)
-- ClearPass Policy Manager
+📂 Guide complet et Docker Compose → [`docker/n8n/`](docker/n8n/)
 
 ---
 
-## 🗺 Architecture globale
+## Central NAC + Intune — HPE Aruba TechDocs
+
+Guide technique publié sur le portail officiel **HPE Aruba TechDocs** :
+
+> 📖 [Central NAC with Microsoft Intune UEM Onboarding](https://arubanetworking.hpe.com/techdocs/NAC/central-nac/central-nac-uem-onboarding-intune/)
+
+Ce guide couvre l'intégration complète **Aruba Central NAC + Microsoft Intune** pour le déploiement de certificats SCEP en 802.1X — un cas d'usage enterprise fréquent et peu documenté.
+
+Technologies couvertes : HPE Aruba Central NAC · Microsoft Intune (UEM) · SCEP · 802.1X EAP-TLS · ClearPass Policy Manager
+
+> **EN** — Technical guide published on the official HPE Aruba TechDocs portal. Covers the full integration of Aruba Central NAC with Microsoft Intune for SCEP certificate-based 802.1X authentication — a common enterprise use case that is rarely documented end-to-end.
+
+---
+
+## Architecture globale
 
 ```
 Internet
@@ -133,18 +134,20 @@ Cloudflare WAF / DNS
    ▼
 Nginx Proxy Manager (VM Proxmox)
    │
-   ├──► gitlab.culetto.fr       ← GitLab CE
-   ├──► automation.culetto.fr   ← Ansible + Terraform + GitLab Runner
-   ├──► n8n.culetto.fr          ← n8n automation
-   └──► pve1.culetto.fr         ← Proxmox VE (accès restreint)
-   
-Synology NAS (192.168.0.113)
-   └──► qBittorrent :8080       ← Géré par n8n workflows
+   ├──► gitlab.culetto.fr         ← GitLab CE
+   ├──► automation.culetto.fr     ← Ansible + Terraform + GitLab Runner
+   ├──► n8n.culetto.fr            ← n8n automation
+   └──► pve1.culetto.fr           ← Proxmox VE (accès restreint)
+
+Synology NAS (réseau local)
+   └──► qBittorrent               ← Géré par n8n workflows
 ```
+
+> **EN** — All services are exposed through Nginx Proxy Manager behind Cloudflare WAF. The Synology NAS hosts qBittorrent and is controlled remotely via n8n workflows triggered from Discord.
 
 ---
 
-## 📚 Guides disponibles
+## Guides disponibles
 
 | Section | Contenu | Statut |
 |---------|---------|--------|
@@ -155,23 +158,22 @@ Synology NAS (192.168.0.113)
 | [Docker / NPM](docker/nginx-proxy-manager/) | Nginx Proxy Manager + SSL Cloudflare | 🚧 En cours |
 | [Security / UFW](security/ufw/) | Règles UFW pour homelab | 🚧 En cours |
 | [Security / CrowdSec](security/crowdsec/) | Intégration CrowdSec | 📋 Planifié |
-| [GitLab CE](docs/04-gitlab/) | Installation GitLab CE sur Proxmox | 📋 Planifié |
 
 ---
 
-## 🔗 Repos associés
+## Repo associé
 
 | Repo | Description |
 |------|-------------|
-| [aruba-netdevops](https://github.com/Luconik/aruba-netdevops) | Automatisation réseau HPE Aruba AOS-CX avec Ansible, Terraform et GitLab CI/CD |
+| [aruba-netdevops](https://github.com/Luconik/aruba-netdevops) | Automatisation réseau HPE Aruba AOS-CX — Ansible, Terraform, GitLab CI/CD |
 
 ---
 
-## 📬 Contact
+## Contact
 
-- **LinkedIn** : [linkedin.com/in/nicolasculetto](https://www.linkedin.com/in/nicolasculetto/)
-- **Email** : nicolas@culetto.fr
-- **GitHub** : [github.com/Luconik](https://github.com/Luconik)
+- 🔗 **LinkedIn** : [linkedin.com/in/nicolasculetto](https://www.linkedin.com/in/nicolasculetto/)
+- 📧 **Email** : nicolas@culetto.fr
+- 🐙 **GitHub** : [github.com/Luconik](https://github.com/Luconik)
 
 ---
 
