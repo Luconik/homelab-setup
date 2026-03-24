@@ -165,7 +165,7 @@ Synology NAS (réseau local)
 
 | Repo | Description |
 |------|-------------|
-| [aruba-netdevops](https://github.com/Luconik/aruba-netdevops) | Automatisation réseau HPE Aruba AOS-CX — Ansible, Terraform, GitLab CI/CD |
+| [netdevops](https://github.com/Luconik/netdevops) | Automatisation réseau HPE Aruba AOS-CX — Ansible, Terraform, GitLab CI/CD |
 
 ---
 
