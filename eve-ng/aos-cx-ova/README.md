@@ -1,188 +1,293 @@
-<div align="center">
+# HPE Networking Support Portal — Compte gratuit & OVA AOS-CX pour EVE-NG
+# HPE Networking Support Portal — Free Account & AOS-CX OVA for EVE-NG
 
-![Luconik Banner](assets/Logo_Luconik.png)
-
-# homelab-setup
-
-**Nicolas Culetto — Pre-Sales Systems Engineer @ HPE Aruba Networking**
-
-*Infrastructure as Code · Self-hosted · NetDevOps · Network & Security*
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-nicolasculetto-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nicolasculetto/)
-[![GitHub](https://img.shields.io/badge/GitHub-Luconik-181717?style=flat-square&logo=github)](https://github.com/Luconik)
-[![Proxmox](https://img.shields.io/badge/Hyperviseur-Proxmox_VE-E57000?style=flat-square&logo=proxmox)](https://www.proxmox.com/)
-[![Docker](https://img.shields.io/badge/Conteneurs-Docker-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
-[![n8n](https://img.shields.io/badge/Automatisation-n8n-EA4B71?style=flat-square&logo=n8n)](https://n8n.io/)
-[![EVE-NG](https://img.shields.io/badge/Emulation-EVE--NG-FF6600?style=flat-square)](https://www.eve-ng.net/)
+> 🇫🇷 [Français](#fr) | 🇬🇧 [English](#en)
 
 ---
 
-> 🇫🇷 Documentation principale en français — un résumé en anglais est disponible dans chaque section.  
-> 🇬🇧 Main documentation in French — an English summary is available in each section.
+<a name="fr"></a>
+## 🇫🇷 Français
 
-</div>
+### Objectif
 
----
+Ce guide explique comment créer un compte gratuit sur le **HPE Networking Support Portal (NSP)** afin de télécharger le simulateur virtuel **AOS-CX Switch Simulator** (fichier `.ova`) utilisé dans les labs EVE-NG.
 
-## À propos
-
-Ce dépôt documente l'infrastructure complète de mon homelab personnel, construit autour d'un **Intel NUC sous Proxmox VE**.
-
-L'objectif est double :
-- **Personnel** : avoir une infrastructure reproductible, documentée et versionnée
-- **Communautaire** : partager des guides terrain en français, notamment autour de l'écosystème **HPE Aruba Networking** et des outils DevOps/SecOps
-
-> **EN** — This repository documents my personal homelab infrastructure built on a Proxmox VE Intel NUC. It covers virtualization, network emulation (EVE-NG), Docker-based automation with n8n, Discord bots, NAS integration (Synology), and security hardening. All guides are written in French with English summaries.
+> 📎 Ce fichier OVA est utilisé dans les labs EVE-NG documentés dans [`eve-ng/`](../../).
 
 ---
 
-## Stack technique
+### Prérequis
 
-| Composant | Technologie | Rôle |
-|-----------|-------------|------|
-| Hyperviseur | Proxmox VE (Intel NUC) | Virtualisation de l'ensemble |
-| Émulation réseau | EVE-NG | Labs HPE Aruba AOS-CX / Juniper vJunos |
-| Reverse proxy | Nginx Proxy Manager | Exposition services + SSL Let's Encrypt |
-| DNS / WAF | Cloudflare | Protection périmétrique externe |
-| Firewall host | UFW | Règles d'accès locales |
-| Automatisation | n8n (Docker) | Workflows, notifications, bots |
-| Bot Discord | Culetto-Home-Bot | Interface Discord → n8n workflows |
-| Base de données | PostgreSQL (Docker) | Backend n8n |
-| NAS | Synology | Stockage + client torrent (qBittorrent) |
-| GitLab CE | gitlab.culetto.fr | Dépôt Git + CI/CD pipelines |
-| Automation VM | automation.culetto.fr | Runner GitLab + Ansible + Terraform |
-
-> **EN** — The homelab runs on a single Intel NUC with Proxmox VE as the hypervisor. Key services include EVE-NG for network emulation, n8n for workflow automation, a Discord bot for remote control, a Synology NAS for storage, and a self-hosted GitLab instance for CI/CD.
+- Une adresse e-mail **professionnelle ou personnalisée** (domaine propre, ex. `@culetto.fr`)  
+  ⚠️ Les adresses Gmail, Yahoo, Outlook, etc. ne sont **pas acceptées**
+- Un navigateur web moderne
 
 ---
 
-## Structure du dépôt
+### Étape 1 — Accéder au portail et créer un compte
+
+1. Aller sur [https://networkingsupport.hpe.com](https://networkingsupport.hpe.com)
+2. Cliquer sur **"Créer un compte"**
+
+![NSP - Page d'accueil](screenshots/NSP_account_creation.png)
+
+---
+
+### Étape 2 — Démarrer l'onboarding (6 étapes)
+
+Le processus d'inscription NSP se déroule en **6 étapes** :
+
+| # | Étape | Description |
+|---|-------|-------------|
+| 1 | **Start** | Introduction et présentation des étapes |
+| 2 | **Email Validation** | Vérification de l'adresse e-mail via lien d'activation |
+| 3 | **Select Primary Account** | Sélection ou création d'un compte organisation |
+| 4 | **Company Validation** | Validation des informations de l'entreprise |
+| 5 | **User Information** | Adresse personnelle + acceptation EULA |
+| 6 | **End** | Confirmation d'onboarding terminé |
+
+Cliquer sur **"Start Onboarding"** pour commencer.
+
+![NSP - Start Onboarding](screenshots/NSP_Start_onboarding.png)
+
+---
+
+### Étape 3 — Validation de l'e-mail
+
+Un e-mail de vérification est envoyé à l'adresse renseignée. Le lien est valable **6 heures**.
+
+![NSP - Email Validation](screenshots/NSP_Email_validation.png)
+
+Cliquer sur le lien reçu par e-mail (objet : *HPE Networking Support Portal Email Verification*).
+
+![NSP - Mail de confirmation](screenshots/NSP_Mail_Confirmation.png)
+
+Une fois le lien cliqué, la page affiche **"Verified! Your email is now validated."**
+
+![NSP - Email Verified](screenshots/NSP_Email_verified.png)
+
+Cliquer sur **Continue**.
+
+---
+
+### Étape 4 — Sélectionner ou créer un compte organisation
+
+Le portail recherche les comptes existants associés à votre domaine e-mail.  
+Si aucun compte ne correspond, cliquer sur **"Create"** pour en créer un nouveau.
+
+![NSP - Select Primary Account](screenshots/NSP_Select_Primary_Account.png)
+
+Renseigner un **Display Name** (ex. `Luconik`) et une description, puis cliquer sur **Create**.
+
+![NSP - Create Account](screenshots/NSP_Create_Account.png)
+
+---
+
+### Étape 5 — Validation de l'entreprise
+
+Les informations de l'organisation sont pré-remplies à partir du domaine e-mail.  
+Vérifier et compléter les champs (Company Name, Country, City, Postal Code, Address), puis cliquer sur **Create**.
+
+![NSP - Company Validation](screenshots/NSP_Company_Validation.png)
+
+---
+
+### Étape 6 — Informations utilisateur & EULA
+
+Renseigner l'adresse postale, le nom d'utilisateur affiché (ex. `Luconik`), et accepter le **End-User License Agreement**.  
+Cliquer sur **Next**.
+
+![NSP - User Information](screenshots/NSP_User_Information.png)
+
+---
+
+### Étape 7 — Onboarding terminé
+
+La page **"On-board Completed!"** confirme la création du compte.
+
+![NSP - End / Onboarding Completed](screenshots/NSP_End.png)
+
+---
+
+### Télécharger l'OVA AOS-CX
+
+Une fois connecté au portail, depuis le dashboard principal :
+
+1. Dans le champ de recherche, saisir **`ova`** et filtrer sur **Software**
+2. Rechercher **`AOS-CX_Switch_Simulator`**
+3. Sélectionner la version souhaitée (ex. `AOS-CX_Switch_Simulator_10.16.1006.ova` — dernière version GA disponible)
+4. Cliquer sur l'icône de téléchargement ⬇️
+
+![NSP - Dashboard (compte Luconik)](screenshots/NSP_OVA_Link.png)
+
+![NSP - Résultats de recherche OVA](screenshots/NSP_Search_OVA.png)
+
+> 💡 **Fichier à télécharger :** `AOS-CX_Switch_Simulator_10.16.1006.ova`  
+> Taille approximative : ~1 GB  
+> Série : 2+ series | Release : AOS-CX 10.16.1006 | LSR | GA
+
+---
+
+### Utilisation dans EVE-NG
+
+Une fois l'OVA téléchargé, se référer à la documentation EVE-NG :
+
+👉 [`eve-ng/`](../../)
+
+---
+---
+
+<a name="en"></a>
+## 🇬🇧 English
+
+### Purpose
+
+This guide explains how to create a free account on the **HPE Networking Support Portal (NSP)** in order to download the **AOS-CX Switch Simulator** virtual appliance (`.ova` file) used in EVE-NG labs.
+
+> 📎 This OVA is used in the EVE-NG labs documented in [`eve-ng/`](../../).
+
+---
+
+### Prerequisites
+
+- A **professional or custom-domain** email address (e.g. `@culetto.fr`)  
+  ⚠️ Public email providers (Gmail, Yahoo, Outlook, etc.) are **not accepted**
+- A modern web browser
+
+---
+
+### Step 1 — Access the portal and create an account
+
+1. Go to [https://networkingsupport.hpe.com](https://networkingsupport.hpe.com)
+2. Click **"Create an account"**
+
+![NSP - Home page](screenshots/NSP_account_creation.png)
+
+---
+
+### Step 2 — Start onboarding (6 steps)
+
+The NSP registration process consists of **6 steps**:
+
+| # | Step | Description |
+|---|------|-------------|
+| 1 | **Start** | Introduction and overview |
+| 2 | **Email Validation** | Email address verification via activation link |
+| 3 | **Select Primary Account** | Select or create an organization account |
+| 4 | **Company Validation** | Validate company information |
+| 5 | **User Information** | Personal address + EULA acceptance |
+| 6 | **End** | Onboarding confirmation |
+
+Click **"Start Onboarding"** to begin.
+
+![NSP - Start Onboarding](screenshots/NSP_Start_onboarding.png)
+
+---
+
+### Step 3 — Email validation
+
+A verification email is sent to the registered address. The link is valid for **6 hours**.
+
+![NSP - Email Validation](screenshots/NSP_Email_validation.png)
+
+Click the link in the email (subject: *HPE Networking Support Portal Email Verification*).
+
+![NSP - Confirmation email](screenshots/NSP_Mail_Confirmation.png)
+
+Once clicked, the page displays **"Verified! Your email is now validated."**
+
+![NSP - Email Verified](screenshots/NSP_Email_verified.png)
+
+Click **Continue**.
+
+---
+
+### Step 4 — Select or create an organization account
+
+The portal searches for existing accounts matching your email domain.  
+If none are found, click **"Create"** to create a new one.
+
+![NSP - Select Primary Account](screenshots/NSP_Select_Primary_Account.png)
+
+Enter a **Display Name** (e.g. `Luconik`) and a description, then click **Create**.
+
+![NSP - Create Account](screenshots/NSP_Create_Account.png)
+
+---
+
+### Step 5 — Company validation
+
+Organization details are pre-filled from your email domain.  
+Review and complete the fields (Company Name, Country, City, Postal Code, Address), then click **Create**.
+
+![NSP - Company Validation](screenshots/NSP_Company_Validation.png)
+
+---
+
+### Step 6 — User information & EULA
+
+Enter your postal address, display username (e.g. `Luconik`), and accept the **End-User License Agreement**.  
+Click **Next**.
+
+![NSP - User Information](screenshots/NSP_User_Information.png)
+
+---
+
+### Step 7 — Onboarding complete
+
+The **"On-board Completed!"** page confirms the account has been created.
+
+![NSP - End / Onboarding Completed](screenshots/NSP_End.png)
+
+---
+
+### Download the AOS-CX OVA
+
+Once logged into the portal, from the main dashboard:
+
+1. In the search bar, type **`ova`** and filter on **Software**
+2. Search for **`AOS-CX_Switch_Simulator`**
+3. Select the desired version (e.g. `AOS-CX_Switch_Simulator_10.16.1006.ova` — latest available GA release)
+4. Click the download icon ⬇️
+
+![NSP - Dashboard (Luconik account)](screenshots/NSP_OVA_Link.png)
+
+![NSP - OVA search results](screenshots/NSP_Search_OVA.png)
+
+> 💡 **File to download:** `AOS-CX_Switch_Simulator_10.16.1006.ova`  
+> Approximate size: ~1 GB  
+> Series: 2+ series | Release: AOS-CX 10.16.1006 | LSR | GA
+
+---
+
+### Using in EVE-NG
+
+Once the OVA is downloaded, refer to the EVE-NG documentation:
+
+👉 [`eve-ng/`](../../)
+
+---
+
+## File structure / Structure des fichiers
 
 ```
-homelab-setup/
-├── assets/                        # Bannières et images
-├── eve-ng/
-│   ├── esxi/                      # Guide installation EVE-NG sur ESXi
-│   └── proxmox/                   # Guide installation EVE-NG sur Proxmox VE
-├── ubuntu-server/                 # Guide installation Ubuntu Server (VM Proxmox)
-├── docker/
-│   ├── n8n/                       # Stack n8n + PostgreSQL (Docker Compose)
-│   └── nginx-proxy-manager/       # Config NPM + Cloudflare SSL
-└── security/
-    ├── ufw/                       # Règles UFW recommandées
-    └── crowdsec/                  # Intégration CrowdSec (WIP)
+eve-ng/aos-cx-ova/
+├── README.md               ← This file / Ce fichier
+└── screenshots/
+    ├── NSP_account_creation.png
+    ├── NSP_Start_onboarding.png
+    ├── NSP_Email_validation.png
+    ├── NSP_Mail_Confirmation.png
+    ├── NSP_Email_verified.png
+    ├── NSP_Select_Primary_Account.png
+    ├── NSP_Create_Account.png
+    ├── NSP_Company_Validation.png
+    ├── NSP_User_Information.png
+    ├── NSP_End.png
+    ├── NSP_OVA_Link.png
+    └── NSP_Search_OVA.png
 ```
 
-> **EN** — The repository is organized by technology area: EVE-NG network emulation guides, Ubuntu Server setup, Docker-based services (n8n automation stack), and security hardening (UFW, CrowdSec).
-
 ---
 
-## Automatisation n8n + Discord
-
-L'une des parties les plus actives du homelab : un stack **n8n + PostgreSQL + Discord Bot** qui centralise les notifications et les actions à distance.
-
-### Architecture
-
-```
-Discord (Culetto-Home-Bot)
-        │
-        ▼
-   n8n (Docker)  ◄──► PostgreSQL
-        │
-        ├──► qBittorrent (Synology NAS)
-        ├──► Nyaa.si RSS (notifications nouveaux torrents)
-        └──► Proxmox API (scheduler VMs)
-```
-
-### Commandes Discord disponibles
-
-| Commande | Description |
-|----------|-------------|
-| `!dl <url>` | Téléchargement manuel de torrent via qBittorrent |
-| `!skip` | Ignorer une notification torrent en attente |
-| `!status` | Statut des téléchargements actifs |
-| `!newseason` | Déclarer une nouvelle saison (purge automatique) |
-
-> **EN** — The n8n automation stack connects a Discord bot to qBittorrent (running on a Synology NAS), an RSS feed watcher (Nyaa.si), and the Proxmox API. Discord commands allow remote control of downloads and scheduled tasks without direct server access.
-
-📂 Guide complet et Docker Compose → [`docker/n8n/`](docker/n8n/)
-
----
-
-## Central NAC + Intune — HPE Aruba TechDocs
-
-Guide technique publié sur le portail officiel **HPE Aruba TechDocs** :
-
-> 📖 [Central NAC with Microsoft Intune UEM Onboarding](https://arubanetworking.hpe.com/techdocs/NAC/central-nac/central-nac-uem-onboarding-intune/)
-
-Ce guide couvre l'intégration complète **Aruba Central NAC + Microsoft Intune** pour le déploiement de certificats SCEP en 802.1X — un cas d'usage enterprise fréquent et peu documenté.
-
-Technologies couvertes : HPE Aruba Central NAC · Microsoft Intune (UEM) · SCEP · 802.1X EAP-TLS · ClearPass Policy Manager
-
-> **EN** — Technical guide published on the official HPE Aruba TechDocs portal. Covers the full integration of Aruba Central NAC with Microsoft Intune for SCEP certificate-based 802.1X authentication — a common enterprise use case that is rarely documented end-to-end.
-
----
-
-## Architecture globale
-
-```
-Internet
-   │
-   ▼
-Cloudflare WAF / DNS
-   │
-   ▼
-Nginx Proxy Manager (VM Proxmox)
-   │
-   ├──► gitlab.culetto.fr         ← GitLab CE
-   ├──► automation.culetto.fr     ← Ansible + Terraform + GitLab Runner
-   ├──► n8n.culetto.fr            ← n8n automation
-   └──► pve1.culetto.fr           ← Proxmox VE (accès restreint)
-
-Synology NAS (réseau local)
-   └──► qBittorrent               ← Géré par n8n workflows
-```
-
-> **EN** — All services are exposed through Nginx Proxy Manager behind Cloudflare WAF. The Synology NAS hosts qBittorrent and is controlled remotely via n8n workflows triggered from Discord.
-
----
-
-## Guides disponibles
-
-| Section | Contenu | Statut |
-|---------|---------|--------|
-| [EVE-NG / ESXi](eve-ng/esxi/) | Installation EVE-NG sur VMware ESXi | ✅ Disponible |
-| [EVE-NG / Proxmox](eve-ng/proxmox/) | Installation EVE-NG sur Proxmox VE | ✅ Disponible |
-| [Ubuntu Server](ubuntu-server/) | Installation VM Ubuntu Server sur Proxmox | 🚧 En cours |
-| [Docker / n8n](docker/n8n/) | Stack n8n + PostgreSQL + Discord Bot | 🚧 En cours |
-| [Docker / NPM](docker/nginx-proxy-manager/) | Nginx Proxy Manager + SSL Cloudflare | 🚧 En cours |
-| [Security / UFW](security/ufw/) | Règles UFW pour homelab | 🚧 En cours |
-| [Security / CrowdSec](security/crowdsec/) | Intégration CrowdSec | 📋 Planifié |
-
----
-
-## Repo associé
-
-| Repo | Description |
-|------|-------------|
-| [netdevops](https://github.com/Luconik/netdevops) | Automatisation réseau HPE Aruba AOS-CX — Ansible, Terraform, GitLab CI/CD |
-
----
-
-## Contact
-
-- 🔗 **LinkedIn** : [linkedin.com/in/nicolasculetto](https://www.linkedin.com/in/nicolasculetto/)
-- 📧 **Email** : nicolas@culetto.fr
-- 🐙 **GitHub** : [github.com/Luconik](https://github.com/Luconik)
-
----
-
-> Les guides sont librement réutilisables avec mention de l'auteur (CC BY 4.0).
-
-<div align="center">
-
-*Made with ❤️ and too much coffee — Nicolas Culetto / Luconik*
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-nicolasculetto-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nicolasculetto/)
-
-</div>
+*Last updated: March 2026 — [@Luconik](https://github.com/Luconik)*
