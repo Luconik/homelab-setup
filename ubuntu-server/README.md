@@ -1,336 +1,501 @@
-# Ubuntu Server 24.04 LTS sur Proxmox VE
+# Ubuntu Server 24.04 LTS — Installation & Configuration
+# Ubuntu Server 24.04 LTS — Installation & Configuration
 
-Guide d'installation et de configuration d'**Ubuntu Server 24.04 LTS** comme VM sur **Proxmox VE 9.1**.
-
-> 🇫🇷 Documentation principale en français — un résumé en anglais est disponible dans chaque section.  
-> 🇬🇧 Main documentation in French — an English summary is available in each section.
+> 🇫🇷 [Français](#fr) | 🇬🇧 [English](#en)
 
 ---
 
-## Prérequis
+<a name="fr"></a>
+## 🇫🇷 Français
 
-| Élément | Configuration utilisée |
-|---------|----------------------|
-| Hôte | Proxmox VE 9.1.4 |
-| vCPU | 2 cores |
-| RAM | 4 096 Mo (4 Go) |
-| Disque | 60 Go |
-| ISO | Ubuntu Server 24.04 LTS (noble) |
-| Réseau | Bridge vmbr0 — VirtIO paravirtualized |
+### Objectif
 
-> **EN** — Proxmox VE 9.1, 2 vCPUs, 4GB RAM, 60GB disk, Ubuntu Server 24.04 LTS ISO, vmbr0 VirtIO network bridge.
+Ce guide couvre l'installation et la configuration d'**Ubuntu Server 24.04 LTS** sur une VM Proxmox, ainsi que le provisioning complet de la VM `automation` — utilisée pour Ansible, Terraform, Docker et le GitLab Runner.
 
 ---
 
-## Étape 1 — Téléchargement de l'ISO
+## Partie 1 — Installation Ubuntu Server 24.04 LTS
 
-1. Aller sur [ubuntu.com/download/server](https://ubuntu.com/download/server)
-2. Télécharger **Ubuntu Server 24.04 LTS**
-3. Uploader l'ISO dans Proxmox : **Datacenter → Storage → local → ISO Images → Upload**
-
-> **EN** — Download Ubuntu Server 24.04 LTS and upload the ISO to your Proxmox local storage via the web interface.
-
----
-
-## Étape 2 — Création de la VM dans Proxmox
-
-Depuis la console Proxmox, cliquer sur **"Create VM"** en haut à droite.
-
-![Console Proxmox — Create VM](images/CreateVM.png)
-
-### 2.1 — General
-
-Renseigner le **Node** (`pve1`), le **VM ID** et le **Name** de la VM (ex : `luconik-automation`), puis cliquer **Next**.
-
-![General](images/Create_General.png)
-
-### 2.2 — OS
-
-Sélectionner l'ISO Ubuntu Server 24.04 LTS, **Guest OS Type : Linux**, **Version : 6.x - 2.6 Kernel**, puis cliquer **Next**.
-
-![OS — Sélection ISO](images/Create_OS.png)
-
-### 2.3 — System
-
-Laisser **BIOS : Default (SeaBIOS)**, cocher ✅ **Qemu Agent**, puis cliquer **Next**.
-
-![System — Qemu Agent](images/Create_System.png)
-
-### 2.4 — Disks
-
-Sélectionner le storage (`local-lvm`), définir la taille (60 Go), puis cliquer **Next**.
-
-![Disk](images/Create_Disk.png)
-
-### 2.5 — CPU
-
-Définir **2 Cores**, **Type : x86-64-v2-AES**, puis cliquer **Next**.
-
-![CPU](images/Create_CPU.png)
-
-### 2.6 — Memory
-
-Définir **4096 MiB** (4 Go), puis cliquer **Next**.
-
-![Memory](images/Create_Memory.png)
-
-### 2.7 — Network
-
-Laisser le bridge **vmbr0**, modèle **VirtIO (paravirtualized)**, puis cliquer **Next**.
-
-![Network](images/Create_Network.png)
-
-### 2.8 — Confirm
-
-Vérifier les paramètres et cliquer **Finish**.
-
-![Confirm](images/Create_Confirm.png)
-
-> **EN** — Create VM with Ubuntu Linux guest, SeaBIOS, Qemu Agent enabled, 60GB SCSI disk on local-lvm, 2 cores, 4GB RAM, vmbr0 VirtIO network.
-
----
-
-## Étape 3 — Installation Ubuntu Server
-
-Démarrer la VM et ouvrir la console Proxmox (bouton **Console** dans le menu de la VM).
-
-### 3.1 — Mise à jour de l'installeur
-
-Si une mise à jour de l'installeur est disponible, sélectionner **"Update to the new installer"** ou **"Continue without updating"** selon ta préférence.
-
-![Mise à jour installeur](images/Install_Update_Installer.png)
-
-### 3.2 — Langue
-
-Sélectionner **English** (langue par défaut sur Ubuntu 24.04), puis appuyer sur Entrée.
-
-![Langue](images/Install_Language.png)
-
-### 3.3 — Configuration du clavier
-
-Sélectionner la disposition clavier adaptée à ton matériel (ex : **English (US) — English (Macintosh)**), puis **Done**.
-
-![Clavier](images/Install_Keyboard.png)
-
-### 3.4 — Type d'installation
-
-Sélectionner **"Ubuntu Server"** (installation standard), puis **Done**.
-
-![Type installation](images/Install_Type.png)
-
-### 3.5 — Configuration réseau
-
-L'interface **ens18** est détectée automatiquement en DHCP. Laisser tel quel pour l'installation — on configurera l'IP statique après.
-
-![Réseau — ens18 DHCP](images/Install_Network.png)
-
-### 3.6 — Proxy
-
-Laisser vide si pas de proxy, puis **Done**.
-
-![Proxy](images/Install_Proxy.png)
-
-### 3.7 — Miroir APT
-
-Le miroir français `http://fr.archive.ubuntu.com/ubuntu/` est détecté automatiquement. Laisser par défaut et cliquer **Done**.
-
-![Miroir APT](images/Install_Mirror.png)
-
-### 3.8 — Configuration du disque
-
-Sélectionner **"Use an entire disk"** avec LVM, puis **Done**.
-
-![Disque](images/Install_Disk.png)
-
-Confirmer le résumé du partitionnement → **Done → Continue**.
-
-![Résumé disque](images/Install_Disk_Summary.png)
-
-### 3.9 — Profil utilisateur
-
-Renseigner les informations du compte :
-
-| Champ | Exemple |
-|-------|---------|
-| Your name | `luconik` |
-| Your server's name | `luconik-automation` |
-| Pick a username | `luconik` |
-| Password | Choisir un mot de passe fort |
-
-![Profil](images/Install_Profile.png)
-
-### 3.10 — Ubuntu Pro
-
-Sélectionner **"Skip for now"**, puis **Continue**.
-
-![Ubuntu Pro](images/Install_Ubuntu_Pro.png)
-
-### 3.11 — SSH
-
-Cocher ✅ **"Install OpenSSH server"**, puis **Done**.
-
-![SSH](images/Install_SSH.png)
-
-### 3.12 — Snaps additionnels
-
-Ne rien sélectionner, puis **Done**.
-
-![Snaps](images/Install_Snaps.png)
-
-### 3.13 — Installation en cours
-
-Patienter jusqu'à la fin de l'installation.
-
-![Installation en cours](images/Install_Progress.png)
-
-### 3.14 — Redémarrage
-
-Quand **"Installation complete!"** s'affiche, cliquer **"Reboot Now"**.
-
-![Installation complète — Reboot Now](images/Install_Reboot.png)
-
-> **EN** — Ubuntu Server 24.04 installs in English by default. Update the installer if prompted, configure keyboard, select Ubuntu Server install type, leave network on DHCP, use entire disk with LVM, create user, skip Ubuntu Pro, enable OpenSSH, skip snaps. Reboot when done.
-
----
-
-## Étape 4 — Configuration IP statique
-
-Après redémarrage, se connecter avec les identifiants créés lors de l'installation.
-
-### 4.1 — Identifier l'interface réseau
+### 1.1 Télécharger l'ISO
 
 ```bash
-ip a
-# Interface détectée : ens18
+# Sur Proxmox, télécharger l'ISO dans le storage local
+# Interface web Proxmox → local → ISO Images → Download from URL
+
+https://releases.ubuntu.com/24.04/ubuntu-24.04.2-live-server-amd64.iso
 ```
 
-### 4.2 — Éditer la configuration Netplan
+### 1.2 Créer la VM dans Proxmox
+
+Dans l'interface web Proxmox :
+
+| Paramètre | Valeur recommandée (VM automation) |
+|-----------|-----------------------------------|
+| Name | `automation` |
+| OS | Linux 6.x (Ubuntu) |
+| CPU | 2 vCPU (type : host) |
+| RAM | 4 GB (ballooning activé) |
+| Disk | 40 GB (VirtIO SCSI, thin provisioning) |
+| Network | VirtIO, bridge `vmbr0` |
+| ISO | `ubuntu-24.04.2-live-server-amd64.iso` |
+
+### 1.3 Installation — étapes clés
+
+1. **Language** → French (ou English)
+2. **Keyboard layout** → French (ou QWERTY selon préférence)
+3. **Type d'installation** → Ubuntu Server (minimized)
+4. **Réseau** → Configurer l'IP fixe ici (voir section 2.1) ou laisser DHCP et fixer après
+5. **Storage** → Use entire disk → LVM (pas ZFS pour une VM)
+6. **Profile** :
+   - Your name : `Nicolas Culetto`
+   - Server name : `automation`
+   - Username : `luconik`
+   - Password : (mot de passe fort)
+7. **SSH** → ✅ Install OpenSSH server → importer la clé depuis GitHub (`github.com/Luconik`)
+8. **Snaps** → Ne rien sélectionner → Done
+
+---
+
+## Partie 2 — Configuration post-installation
+
+### 2.1 IP fixe (Netplan)
 
 ```bash
 sudo nano /etc/netplan/00-installer-config.yaml
 ```
 
-Remplacer le contenu par une configuration IP statique :
-
 ```yaml
 network:
   version: 2
   ethernets:
-    ens18:
+    ens18:                          # Adapter selon le nom de l'interface (ip a)
+      dhcp4: false
       addresses:
-        - 10.224.100.X/24          # ton IP statique
+        - 192.168.x.x/24           # IP fixe souhaitée
       routes:
         - to: default
-          via: 10.224.100.1        # ta gateway
+          via: 192.168.x.1         # Gateway
       nameservers:
         addresses:
-          - 8.8.8.8
           - 1.1.1.1
-      dhcp4: false
+          - 8.8.8.8
 ```
-
-Appliquer et vérifier :
 
 ```bash
 sudo netplan apply
-ip a
-ping 8.8.8.8 -c 4
+ip a                               # Vérifier l'IP
 ```
 
-> **EN** — Edit /etc/netplan/00-installer-config.yaml to set a static IP on ens18. Apply with "sudo netplan apply" and verify connectivity.
-
----
-
-## Étape 5 — Configuration SSH
-
-### 5.1 — Connexion depuis ton Mac
-
-```bash
-ssh luconik@[IP_SERVEUR]
-```
-
-### 5.2 — Authentification par clé SSH (recommandé)
-
-Sur ton Mac, générer une paire de clés si besoin :
-
-```bash
-ssh-keygen -t ed25519 -C "nicolas@culetto.fr"
-```
-
-Copier la clé publique sur le serveur :
-
-```bash
-ssh-copy-id luconik@[IP_SERVEUR]
-```
-
-### 5.3 — Désactiver l'authentification par mot de passe (optionnel)
+### 2.2 SSH — configuration sécurisée
 
 ```bash
 sudo nano /etc/ssh/sshd_config
-# Modifier :
-# PasswordAuthentication no
-# PubkeyAuthentication yes
+```
 
+```
+PermitRootLogin no
+PasswordAuthentication no          # Après avoir importé la clé SSH
+PubkeyAuthentication yes
+```
+
+```bash
 sudo systemctl restart ssh
 ```
 
-> **EN** — Connect via SSH from your Mac. Use SSH key authentication for better security. Optionally disable password login in /etc/ssh/sshd_config.
-
----
-
-## Étape 6 — Post-installation
-
-### 6.1 — Mises à jour
+### 2.3 Mises à jour système
 
 ```bash
 sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl wget git unzip vim htop net-tools
 ```
 
-### 6.2 — Outils de base
-
-```bash
-sudo apt install -y \
-  curl \
-  wget \
-  git \
-  vim \
-  htop \
-  net-tools \
-  unzip \
-  ca-certificates \
-  gnupg \
-  lsb-release
-```
-
-### 6.3 — Qemu Guest Agent
-
-Pour que Proxmox puisse afficher l'IP de la VM et effectuer des snapshots propres :
+### 2.4 QEMU Guest Agent (Proxmox)
 
 ```bash
 sudo apt install -y qemu-guest-agent
 sudo systemctl enable --now qemu-guest-agent
 ```
 
-### 6.4 — Vérification finale
+---
+
+## Partie 3 — Installation Ansible
+
+### 3.1 Créer le virtualenv dédié
 
 ```bash
-ip a                                    # IP statique configurée
-ping 8.8.8.8 -c 4                       # Connectivité internet
-sudo systemctl status ssh               # SSH actif
-sudo systemctl status qemu-guest-agent  # Qemu agent actif
+sudo apt install -y python3-venv python3-pip
+
+# Créer le venv pour les labs AOS-CX Aruba
+sudo mkdir -p /opt/ansible-aruba
+sudo chown $USER:$USER /opt/ansible-aruba
+python3 -m venv /opt/ansible-aruba/venv
 ```
 
-> **EN** — Update packages, install basic tools, and enable qemu-guest-agent for Proxmox integration (VM IP visible in UI, clean snapshots).
+### 3.2 Installer ansible-core 2.17
+
+```bash
+source /opt/ansible-aruba/venv/bin/activate
+
+# Installer ansible-core version spécifique
+pip install --upgrade pip
+pip install ansible-core==2.17.*
+
+# Vérifier
+ansible --version
+# ansible [core 2.17.x]
+```
+
+### 3.3 Installer la collection AOS-CX
+
+```bash
+# Toujours dans le venv
+ansible-galaxy collection install arubanetworks.aoscx
+
+# Vérifier
+ansible-galaxy collection list | grep aoscx
+# arubanetworks.aoscx  x.x.x
+```
+
+### 3.4 Activer le venv automatiquement (optionnel)
+
+```bash
+echo 'source /opt/ansible-aruba/venv/bin/activate' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### 3.5 Vérification complète
+
+```bash
+ansible --version
+python3 -c "import ansible; print(ansible.__version__)"
+ansible-galaxy collection list | grep aoscx
+```
 
 ---
 
-## Ressources utiles
+## Partie 4 — Installation Terraform
 
-- 📖 [Documentation officielle Ubuntu Server](https://ubuntu.com/server/docs)
-- 📖 [Documentation Netplan](https://netplan.io/reference)
-- 🔗 [Guide EVE-NG sur Proxmox](../eve-ng/proxmox/README.md)
-- 🔗 [Guide Docker n8n](../docker/n8n/README.md)
+### 4.1 Installer Terraform 1.5.x
+
+```bash
+# Méthode officielle HashiCorp (apt)
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+
+# Installer la version 1.5.x spécifique
+sudo apt install -y terraform=1.5.*
+
+# Vérifier
+terraform version
+# Terraform v1.5.x
+```
+
+### 4.2 Empêcher les mises à jour automatiques (version pinning)
+
+```bash
+sudo apt-mark hold terraform
+```
+
+### 4.3 Initialiser le provider AOS-CX
+
+```bash
+cd ~/netdevops/terraform/
+terraform init
+
+# Vérifier le provider
+terraform providers
+# provider[registry.terraform.io/aruba/aoscx]
+```
 
 ---
 
-> Les guides sont librement réutilisables avec mention de l'auteur (CC BY 4.0).
+## Partie 5 — Installation Docker & Docker Compose
+
+### 5.1 Installer Docker Engine
+
+```bash
+# Désinstaller les anciennes versions
+sudo apt remove -y docker docker-engine docker.io containerd runc
+
+# Installer les dépendances
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# Ajouter le repo officiel Docker
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+### 5.2 Configurer Docker pour l'utilisateur courant
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Vérifier
+docker --version
+docker compose version
+```
+
+### 5.3 Démarrer Docker au boot
+
+```bash
+sudo systemctl enable --now docker
+```
+
+---
+
+## Partie 6 — Installation GitLab Runner
+
+### 6.1 Installer le runner
+
+```bash
+# Ajouter le repo GitLab
+curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+
+# Installer
+sudo apt install -y gitlab-runner
+```
+
+### 6.2 Enregistrer le runner
+
+```bash
+sudo gitlab-runner register \
+  --url https://gitlab.your-domain.com \
+  --token <RUNNER_TOKEN>           \
+  --executor shell                 \
+  --description "automation-runner" \
+  --tag-list "shell,ansible,terraform"
+```
+
+> 💡 Le token se récupère dans GitLab → Settings → CI/CD → Runners → New project runner.
+
+### 6.3 Vérifier le runner
+
+```bash
+sudo gitlab-runner status
+sudo gitlab-runner list
+```
+
+### 6.4 Configurer le runner pour utiliser le venv Ansible
+
+Éditer `/etc/gitlab-runner/config.toml` pour que le runner utilise le bon venv :
+
+```toml
+[[runners]]
+  name = "automation-runner"
+  url = "https://gitlab.your-domain.com"
+  executor = "shell"
+  [runners.custom_build_dir]
+  [runners.cache]
+  environment = ["ANSIBLE_COLLECTIONS_PATH=/opt/ansible-aruba/collections",
+                 "ANSIBLE_PYTHON_INTERPRETER=/opt/ansible-aruba/venv/bin/python3"]
+```
+
+```bash
+sudo systemctl restart gitlab-runner
+```
+
+---
+
+## Récapitulatif — Versions installées
+
+| Composant | Version | Commande de vérification |
+|-----------|---------|--------------------------|
+| Ubuntu Server | 24.04 LTS | `lsb_release -a` |
+| Python | 3.12.x | `python3 --version` |
+| ansible-core | 2.17.x | `ansible --version` |
+| arubanetworks.aoscx | dernière | `ansible-galaxy collection list \| grep aoscx` |
+| Terraform | 1.5.x | `terraform version` |
+| Docker Engine | dernière stable | `docker --version` |
+| Docker Compose | dernière stable | `docker compose version` |
+| GitLab Runner | dernière stable | `gitlab-runner --version` |
+
+---
+
+## Références
+
+- [Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server)
+- [Ansible Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/)
+- [Terraform Install — Ubuntu](https://developer.hashicorp.com/terraform/install#linux)
+- [Docker Engine — Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+- [GitLab Runner — Installation](https://docs.gitlab.com/runner/install/linux-repository.html)
+- [`../docker/n8n/`](../docker/n8n/) — Stack n8n + PostgreSQL sur cette VM
+- 🔗 [`netdevops/ansible/`](https://github.com/Luconik/netdevops/tree/main/ansible) — Labs AOS-CX (Ansible installé sur cette VM)
+- 🔗 [`netdevops/terraform/`](https://github.com/Luconik/netdevops/tree/main/terraform) — Terraform (installé sur cette VM)
+- 🔗 [`netdevops/docs/gitlab-cicd/`](https://github.com/Luconik/netdevops/tree/main/docs/gitlab-cicd) — Pipeline GitLab CI/CD (runner sur cette VM)
+
+---
+---
+
+<a name="en"></a>
+## 🇬🇧 English
+
+### Purpose
+
+This guide covers the installation and configuration of **Ubuntu Server 24.04 LTS** on a Proxmox VM, and the full provisioning of the `automation` VM — used for Ansible, Terraform, Docker, and the GitLab Runner.
+
+---
+
+## Part 1 — Ubuntu Server 24.04 LTS Installation
+
+### VM specs (automation)
+
+| Parameter | Value |
+|-----------|-------|
+| Name | `automation` |
+| CPU | 2 vCPU (type: host) |
+| RAM | 4 GB |
+| Disk | 40 GB (VirtIO SCSI, thin) |
+| Network | VirtIO, bridge `vmbr0` |
+
+### Key installation steps
+
+1. Type → Ubuntu Server (minimized)
+2. Storage → Use entire disk → LVM
+3. Profile → username: `luconik`, server: `automation`
+4. SSH → ✅ Install OpenSSH → import key from `github.com/Luconik`
+5. Snaps → nothing → Done
+
+---
+
+## Part 2 — Post-install configuration
+
+### Static IP (Netplan)
+
+```yaml
+# /etc/netplan/00-installer-config.yaml
+network:
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: false
+      addresses: [192.168.x.x/24]
+      routes:
+        - to: default
+          via: 192.168.x.1
+      nameservers:
+        addresses: [1.1.1.1, 8.8.8.8]
+```
+
+```bash
+sudo netplan apply
+```
+
+---
+
+## Part 3 — Ansible installation
+
+```bash
+# Create dedicated venv
+sudo mkdir -p /opt/ansible-aruba
+python3 -m venv /opt/ansible-aruba/venv
+source /opt/ansible-aruba/venv/bin/activate
+
+# Install ansible-core 2.17
+pip install ansible-core==2.17.*
+ansible --version    # ansible [core 2.17.x]
+
+# Install AOS-CX collection
+ansible-galaxy collection install arubanetworks.aoscx
+ansible-galaxy collection list | grep aoscx
+```
+
+---
+
+## Part 4 — Terraform installation
+
+```bash
+# Add HashiCorp repo
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update
+
+# Install Terraform 1.5.x
+sudo apt install -y terraform=1.5.*
+sudo apt-mark hold terraform    # Pin version
+terraform version               # Terraform v1.5.x
+```
+
+---
+
+## Part 5 — Docker & Docker Compose
+
+```bash
+# Install Docker Engine (official repo)
+sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Add user to docker group
+sudo usermod -aG docker $USER && newgrp docker
+sudo systemctl enable --now docker
+```
+
+---
+
+## Part 6 — GitLab Runner
+
+```bash
+# Install
+curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+sudo apt install -y gitlab-runner
+
+# Register
+sudo gitlab-runner register \
+  --url https://gitlab.your-domain.com \
+  --token <RUNNER_TOKEN> \
+  --executor shell \
+  --description "automation-runner" \
+  --tag-list "shell,ansible,terraform"
+
+# Verify
+sudo gitlab-runner status
+```
+
+---
+
+## Installed versions summary
+
+| Component | Version | Check command |
+|-----------|---------|---------------|
+| Ubuntu Server | 24.04 LTS | `lsb_release -a` |
+| Python | 3.12.x | `python3 --version` |
+| ansible-core | 2.17.x | `ansible --version` |
+| arubanetworks.aoscx | latest | `ansible-galaxy collection list \| grep aoscx` |
+| Terraform | 1.5.x | `terraform version` |
+| Docker Engine | latest stable | `docker --version` |
+| Docker Compose | latest stable | `docker compose version` |
+| GitLab Runner | latest stable | `gitlab-runner --version` |
+
+---
+
+## References
+
+- [Ubuntu Server 24.04 LTS](https://ubuntu.com/download/server)
+- [Ansible Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/)
+- [Terraform Install — Ubuntu](https://developer.hashicorp.com/terraform/install#linux)
+- [Docker Engine — Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+- [GitLab Runner Install](https://docs.gitlab.com/runner/install/linux-repository.html)
+- 🔗 [`netdevops/ansible/`](https://github.com/Luconik/netdevops/tree/main/ansible) — AOS-CX labs (Ansible installed on this VM)
+- 🔗 [`netdevops/terraform/`](https://github.com/Luconik/netdevops/tree/main/terraform) — Terraform (installed on this VM)
+- 🔗 [`netdevops/docs/gitlab-cicd/`](https://github.com/Luconik/netdevops/tree/main/docs/gitlab-cicd) — GitLab CI/CD pipeline (runner on this VM)
+
+---
+
+*Last updated: March 2026 — [@Luconik](https://github.com/Luconik)*
