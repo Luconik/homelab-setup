@@ -14,7 +14,7 @@
 
 Dans ce homelab, n8n est utilisé pour :
 
-- 🤖 **Discord bot** (`Culetto-Home-Bot`) — commandes `!dl`, `!skip`, `!status`, `!newseason`
+- 🤖 **Discord bot** — commandes `!dl`, `!telec`, `!watch`, `!watchlist`, `!status`, `!unwatch`, `!newseason`
 - 📡 **Notifications Nyaa RSS** — veille automatique des sorties anime/manga VOSTFR
 - 🌊 **qBittorrent** — déclenchement et suivi des téléchargements via le NAS Synology (`192.168.x.x`)
 
@@ -95,7 +95,8 @@ services:
       retries: 5
 
   n8n:
-    image: n8nio/n8n:latest
+    # Épingler aussi le digest après validation dans votre environnement.
+    image: n8nio/n8n:2.29.9
     container_name: n8n
     restart: unless-stopped
     depends_on:
@@ -115,6 +116,11 @@ services:
       N8N_PORT: "5678"
       N8N_PROTOCOL: https
       # Sécurité
+      N8N_PROXY_HOPS: "1"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_RESTRICT_FILE_ACCESS_TO: /home/node/.n8n-files
       N8N_BASIC_AUTH_ACTIVE: "true"
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
@@ -124,7 +130,7 @@ services:
       # Runners
       N8N_RUNNERS_ENABLED: "true"
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
@@ -181,10 +187,10 @@ Dans NPM, créer un **Proxy Host** :
 | Workflow | Déclencheur | Description |
 |----------|-------------|-------------|
 | `Nyaa Notify` | RSS polling (30 min) | Vérifie les nouvelles sorties sur Nyaa.si et notifie Discord |
-| `!dl` | Discord webhook | Téléchargement manuel via qBittorrent sur le NAS Synology |
-| `!skip` | Discord webhook | Ignore une entrée RSS en attente |
-| `!status` | Discord webhook | Statut des téléchargements en cours |
-| `!newseason` | Discord webhook | Réinitialisation de la liste de suivi saisonnière |
+| `Discord Bot Commands` | Discord trigger | Commandes téléchargement et watchlist |
+| `Manga/Anime Downloader` | Sous-workflow | Recherche et téléchargement manuel |
+| `Purge Saisonnière` | Cron trimestriel | Purge des données de plus de 90 jours |
+| `qBittorrent Cleanup` | Planifié | Entretien des téléchargements |
 
 ---
 
@@ -331,7 +337,7 @@ docker compose exec postgres pg_dump -U n8n_user n8n > backup_n8n_$(date +%Y%m%d
 
 > ⚠️ **Variables d'environnement booléennes** : toujours entre guillemets dans docker-compose (ex. `N8N_RUNNERS_ENABLED: "true"`).
 
-> 💡 **Apostrophes dans les titres** : les titres anime contenant des apostrophes peuvent provoquer des erreurs SQL — penser à échapper les chaînes dans les Code nodes JS.
+> 💡 **Requêtes SQL** : utiliser systématiquement des paramètres. Pour une watchlist, préférer un index unique normalisé et un UPSERT afin de réactiver une entrée sans créer de doublon.
 
 ---
 
@@ -353,7 +359,7 @@ docker compose exec postgres pg_dump -U n8n_user n8n > backup_n8n_$(date +%Y%m%d
 
 In this homelab, n8n is used for:
 
-- 🤖 **Discord bot** (`Culetto-Home-Bot`) — commands `!dl`, `!skip`, `!status`, `!newseason`
+- 🤖 **Discord bot** — commands `!dl`, `!telec`, `!watch`, `!watchlist`, `!status`, `!unwatch`, `!newseason`
 - 📡 **Nyaa RSS notifications** — automated tracking of VOSTFR anime/manga releases
 - 🌊 **qBittorrent** — triggering and monitoring downloads via Synology NAS (`192.168.x.x`)
 
@@ -404,10 +410,10 @@ docker compose logs -f n8n
 | Workflow | Trigger | Description |
 |----------|---------|-------------|
 | `Nyaa Notify` | RSS polling (30 min) | Checks new releases on Nyaa.si and notifies Discord |
-| `!dl` | Discord webhook | Manual download trigger via qBittorrent on Synology NAS |
-| `!skip` | Discord webhook | Skips a pending RSS entry |
-| `!status` | Discord webhook | Shows active download status |
-| `!newseason` | Discord webhook | Resets the seasonal tracking list |
+| `Discord Bot Commands` | Discord trigger | Download and watchlist commands |
+| `Manga/Anime Downloader` | Sub-workflow | Manual search and download |
+| `Purge Saisonnière` | Quarterly cron | Removes data older than 90 days |
+| `qBittorrent Cleanup` | Scheduled | Download maintenance |
 
 ---
 
@@ -541,4 +547,4 @@ docker/n8n/
 
 ---
 
-*Last updated: March 2026 — [@Luconik](https://github.com/Luconik)*
+*Last updated: July 2026 — [@Luconik](https://github.com/Luconik)*

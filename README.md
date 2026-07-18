@@ -4,7 +4,7 @@
 
 # homelab-setup
 
-**Infrastructure homelab — Proxmox · EVE-NG · Docker · GitLab · Security**
+**Infrastructure homelab — Proxmox · EVE-NG · Docker · n8n · AI agents · Security**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Luconik-181717?style=flat-square&logo=github)](https://github.com/Luconik)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-nicolasculetto-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nicolasculetto/)
@@ -42,6 +42,8 @@ Ce repo documente l'infrastructure de mon homelab personnel, basé sur un **Inte
 
 ```
 homelab-setup/
+├── agents/
+│   └── hermes/                  ← Hermès Agent sur Ubuntu
 ├── eve-ng/
 │   ├── esxi/                    ← EVE-NG sur ESXi
 │   ├── proxmox/                 ← EVE-NG sur Proxmox
@@ -64,6 +66,7 @@ homelab-setup/
 
 | Dossier | Description | Statut |
 |---------|-------------|--------|
+| [`agents/hermes/`](agents/hermes/) | Hermès Agent natif + gateway + connecteurs MCP | ✅ |
 | [`eve-ng/esxi/`](eve-ng/esxi/) | Installation EVE-NG sur ESXi | ✅ |
 | [`eve-ng/proxmox/`](eve-ng/proxmox/) | Installation EVE-NG sur Proxmox | ✅ |
 | [`eve-ng/aos-cx-ova/`](eve-ng/aos-cx-ova/) | Compte HPE NSP + téléchargement OVA AOS-CX | ✅ |
@@ -131,6 +134,8 @@ This repo documents my personal homelab infrastructure, based on an **Intel NUC*
 
 ```
 homelab-setup/
+├── agents/
+│   └── hermes/                  ← Hermes Agent on Ubuntu
 ├── eve-ng/
 │   ├── esxi/                    ← EVE-NG on ESXi
 │   ├── proxmox/                 ← EVE-NG on Proxmox
@@ -152,6 +157,7 @@ homelab-setup/
 
 | Folder | Description | Status |
 |--------|-------------|--------|
+| [`agents/hermes/`](agents/hermes/) | Native Hermes Agent, gateway and MCP connectors | ✅ |
 | [`eve-ng/esxi/`](eve-ng/esxi/) | EVE-NG on ESXi | ✅ |
 | [`eve-ng/proxmox/`](eve-ng/proxmox/) | EVE-NG on Proxmox | ✅ |
 | [`eve-ng/aos-cx-ova/`](eve-ng/aos-cx-ova/) | HPE NSP account + AOS-CX OVA download | ✅ |
@@ -172,4 +178,4 @@ homelab-setup/
 
 ---
 
-*Last updated: March 2026 — [@Luconik](https://github.com/Luconik)*
+*Last updated: July 2026 — [@Luconik](https://github.com/Luconik)*
