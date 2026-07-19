@@ -24,19 +24,20 @@ Dans ce homelab, n8n est utilisé pour :
 
 | Composant | Détail |
 |-----------|--------|
-| **Host** | `automation.your-domain.com` — VM Ubuntu Server sur Proxmox |
+| **Host** | `ialbator` — serveur Ubuntu toujours disponible |
 | **Runtime** | Docker + Docker Compose |
-| **Base de données** | PostgreSQL 15 (conteneur dédié, même stack) |
-| **Reverse proxy** | Nginx Proxy Manager → `n8n.your-domain.com` (HTTPS) |
-| **Webhooks** | Exposés via NPM + Cloudflare WAF |
+| **Base de données** | PostgreSQL (service interne dédié) |
+| **Reverse proxy** | Traefik → `n8n.your-domain.com` |
+| **TLS** | Certificat Let's Encrypt via ACME |
 
 ---
 
 ### Prérequis
 
 - Docker + Docker Compose installés sur l'hôte
-- Nginx Proxy Manager opérationnel (voir [`../nginx-proxy-manager/`](../nginx-proxy-manager/))
-- Entrée DNS `n8n.your-domain.com` pointant vers l'IP de la VM
+- Traefik opérationnel avec un certificate resolver Let's Encrypt
+- Réseau Docker externe `proxy` créé et partagé avec Traefik
+- Entrée DNS `n8n.your-domain.com` pointant vers le reverse proxy
 
 ---
 
@@ -129,12 +130,20 @@ services:
       TZ: Europe/Paris
       # Runners
       N8N_RUNNERS_ENABLED: "true"
-    ports:
-      - "127.0.0.1:5678:5678"
+    expose:
+      - "5678"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.n8n.rule=Host(`n8n.your-domain.com`)
+      - traefik.http.routers.n8n.entrypoints=websecure
+      - traefik.http.routers.n8n.tls=true
+      - traefik.http.routers.n8n.tls.certresolver=letsencrypt
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
       - n8n_network
+      - proxy
 
 volumes:
   postgres_data:
@@ -143,6 +152,8 @@ volumes:
 networks:
   n8n_network:
     driver: bridge
+  proxy:
+    external: true
 ```
 
 ---
@@ -166,19 +177,14 @@ N8N_BASIC_AUTH_PASSWORD=changeme
 
 ---
 
-### Configuration Nginx Proxy Manager
+### Configuration Traefik + Let's Encrypt
 
-Dans NPM, créer un **Proxy Host** :
+L'exemple Compose ci-dessus s'appuie sur des labels Traefik. Adapter les deux éléments suivants à la configuration du reverse proxy :
 
-| Champ | Valeur |
-|-------|--------|
-| Domain name | `n8n.your-domain.com` |
-| Scheme | `http` |
-| Forward hostname | `localhost` (ou IP VM) |
-| Forward port | `5678` |
-| SSL | Let's Encrypt ✅ |
-| Force SSL | ✅ |
-| Websockets support | ✅ |
+- `websecure` : nom de l'entrypoint HTTPS ;
+- `letsencrypt` : nom du certificate resolver ACME.
+
+Traefik et n8n doivent partager le réseau Docker externe `proxy`. Le port `5678` reste uniquement exposé à ce réseau et n'est pas publié sur l'hôte.
 
 ---
 
@@ -345,7 +351,8 @@ docker compose exec postgres pg_dump -U n8n_user n8n > backup_n8n_$(date +%Y%m%d
 
 - [Documentation officielle n8n](https://docs.n8n.io)
 - [n8n Docker Hub](https://hub.docker.com/r/n8nio/n8n)
-- [`../nginx-proxy-manager/`](../nginx-proxy-manager/) — Configuration du reverse proxy
+- [Documentation Traefik Docker](https://doc.traefik.io/traefik/providers/docker/)
+- [Documentation Traefik ACME](https://doc.traefik.io/traefik/https/acme/)
 
 ---
 ---
@@ -369,19 +376,20 @@ In this homelab, n8n is used for:
 
 | Component | Detail |
 |-----------|--------|
-| **Host** | `automation.your-domain.com` — Ubuntu Server VM on Proxmox |
+| **Host** | `ialbator` — always-on Ubuntu server |
 | **Runtime** | Docker + Docker Compose |
-| **Database** | PostgreSQL 15 (dedicated container, same stack) |
-| **Reverse proxy** | Nginx Proxy Manager → `n8n.your-domain.com` (HTTPS) |
-| **Webhooks** | Exposed via NPM + Cloudflare WAF |
+| **Database** | PostgreSQL (dedicated internal service) |
+| **Reverse proxy** | Traefik → `n8n.your-domain.com` |
+| **TLS** | Let's Encrypt certificate through ACME |
 
 ---
 
 ### Prerequisites
 
 - Docker + Docker Compose installed on the host
-- Nginx Proxy Manager running (see [`../nginx-proxy-manager/`](../nginx-proxy-manager/))
-- DNS entry `n8n.your-domain.com` pointing to the VM IP
+- Traefik running with a Let's Encrypt certificate resolver
+- External Docker network named `proxy`, shared with Traefik
+- DNS entry `n8n.your-domain.com` pointing to the reverse proxy
 
 ---
 
@@ -518,7 +526,8 @@ docker compose exec postgres pg_dump -U n8n_user n8n > backup_n8n_$(date +%Y%m%d
 
 - [n8n official docs](https://docs.n8n.io)
 - [n8n Docker Hub](https://hub.docker.com/r/n8nio/n8n)
-- [`../nginx-proxy-manager/`](../nginx-proxy-manager/) — Reverse proxy setup
+- [Traefik Docker documentation](https://doc.traefik.io/traefik/providers/docker/)
+- [Traefik ACME documentation](https://doc.traefik.io/traefik/https/acme/)
 
 ---
 

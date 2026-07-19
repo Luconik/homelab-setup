@@ -1,6 +1,9 @@
 # Ubuntu Server 24.04 LTS — Installation & Configuration
 # Ubuntu Server 24.04 LTS — Installation & Configuration
 
+> [!IMPORTANT]
+> **Archive technique / Technical archive** — Ce guide décrit l'ancienne VM `automation` sous Proxmox. L'infrastructure actuelle n'utilise plus Proxmox. / This guide documents the former Proxmox `automation` VM. Proxmox is no longer part of the active infrastructure.
+
 > 🇫🇷 [Français](#fr) | 🇬🇧 [English](#en)
 
 ---

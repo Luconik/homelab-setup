@@ -1,5 +1,8 @@
 # EVE-NG Community sur Proxmox VE
 
+> [!IMPORTANT]
+> **Archive technique / Technical archive** — Proxmox ne fait plus partie de l'infrastructure active. Ce guide est conservé comme retour d'expérience et peut contenir des versions obsolètes. / Proxmox is no longer part of the active infrastructure. This guide is retained as a field note and may contain outdated versions.
+
 Guide d'installation d'**EVE-NG Community Edition** sur un hôte **Proxmox VE**, incluant la configuration du mode promiscuous sur `vmbr0` et la connectivité avec les nodes AOS-CX.
 
 > 🇫🇷 Documentation principale en français — un résumé en anglais est disponible dans chaque section.  

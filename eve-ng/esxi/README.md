@@ -1,5 +1,8 @@
 # EVE-NG Community sur VMware ESXi
 
+> [!IMPORTANT]
+> **Archive technique / Technical archive** — ESXi ne fait plus partie de l'infrastructure active. Ce guide est conservé comme retour d'expérience et peut contenir des versions obsolètes. / ESXi is no longer part of the active infrastructure. This guide is retained as a field note and may contain outdated versions.
+
 Guide d'installation d'**EVE-NG Community Edition** sur un hôte **VMware ESXi 8.0**, incluant l'ajout des images HPE Aruba AOS-CX et Juniper vJunos.
 
 > 🇫🇷 Documentation principale en français — un résumé en anglais est disponible dans chaque section.  

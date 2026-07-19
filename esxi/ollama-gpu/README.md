@@ -1,5 +1,8 @@
 # GPU Passthrough RTX 3060 sous ESXi 8 + Ollama
 
+> [!IMPORTANT]
+> **Archive technique / Technical archive** — Cette architecture ESXi a été retirée. La RTX 3060 équipe maintenant Bakastation sous Windows 11. / This ESXi architecture has been retired. The RTX 3060 is now installed in the Windows 11 Bakastation.
+
 > **Statut :** ✅ Fonctionnel  
 > **Date :** Avril 2026  
 > **Matériel :** ASUS DUAL RTX 3060 12GB OC V2 | ESXi 8.0 U3 | i9-10850K | 128GB RAM

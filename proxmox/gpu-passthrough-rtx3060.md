@@ -1,5 +1,8 @@
 # GPU Passthrough — RTX 3060 sur Proxmox VE
 
+> [!IMPORTANT]
+> **Archive technique / Technical archive** — Cette architecture Proxmox a été retirée. La RTX 3060 équipe maintenant Bakastation sous Windows 11. / This Proxmox architecture has been retired. The RTX 3060 is now installed in the Windows 11 Bakastation.
+
 > Testé sur : ASUS ROG STRIX Z390-F Gaming / i9-10850K / Proxmox VE 6.17 / RTX 3060 12GB  
 > Guest : Ubuntu Server 24.04 LTS + Ollama
 
