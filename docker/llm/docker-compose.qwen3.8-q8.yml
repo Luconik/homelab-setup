@@ -1,0 +1,39 @@
+services:
+  gufo-qwen38-q8:
+    image: ghcr.io/gufo-org/toolboxes/gufo-runtime@sha256:32471f61e7a3bfaf057e11b9269e4ff281456ab61be62e99adf9d2b2cd424852
+    container_name: gufo-qwen38-q8
+    restart: unless-stopped
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "990"
+    ipc: host
+    ulimits:
+      memlock: -1
+    ports:
+      - "127.0.0.1:8089:8080"
+    volumes:
+      - /home/luconik/llm-models/qwen3.8-27b:/models:ro
+    command:
+      - gufo
+      - serve
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - llm
+      - --served-model-name
+      - qwen3.8:27b
+      - --model
+      - /models/Qwen3.8-27B-UD-Q8_K_XL.gguf
+      - --mmproj
+      - /models/mmproj-BF16.gguf
+      - --speculative
+      - dflash2
+      - --dflash-model
+      - /models/Qwen3.8-27B-DFlash2-Q4_K_M.gguf
+      - --sessions
+      - "1"
+      - --context
+      - "65536"
