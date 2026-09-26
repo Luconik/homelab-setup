@@ -53,8 +53,7 @@ homelab-setup/
 ├── ubuntu-server/               ← Configuration Ubuntu Server
 ├── docker/
 │   ├── n8n/                     ← n8n + PostgreSQL + Discord Bot
-│   ├── nginx-proxy-manager/     ← Reverse proxy + SSL
-│   └── llm/                     ← Qwen3.8 27B Q8 local sur ialbator
+│   └── nginx-proxy-manager/     ← Reverse proxy + SSL
 ├── security/
 │   └── ufw/                     ← Firewall UFW
 └── assets/
@@ -75,7 +74,6 @@ homelab-setup/
 | [`ubuntu-server/`](ubuntu-server/) | Configuration Ubuntu Server | ✅ |
 | [`docker/n8n/`](docker/n8n/) | n8n + PostgreSQL + Discord Bot (`Culetto-Home-Bot`) | ✅ |
 | [`docker/nginx-proxy-manager/`](docker/nginx-proxy-manager/) | Reverse proxy Nginx + SSL Let's Encrypt | ✅ |
-| [`docker/llm/`](docker/llm/) | Qwen3.8 27B Q8 local, Gufo/ROCm, API privée | ✅ |
 | [`security/ufw/`](security/ufw/) | Configuration firewall UFW | 🔜 |
 
 ---
@@ -146,8 +144,7 @@ homelab-setup/
 ├── ubuntu-server/               ← Ubuntu Server setup
 ├── docker/
 │   ├── n8n/                     ← n8n + PostgreSQL + Discord Bot
-│   ├── nginx-proxy-manager/     ← Reverse proxy + SSL
-│   └── llm/                     ← Local Qwen3.8 27B Q8 on ialbator
+│   └── nginx-proxy-manager/     ← Reverse proxy + SSL
 ├── security/
 │   └── ufw/                     ← UFW firewall
 └── assets/
@@ -168,7 +165,6 @@ homelab-setup/
 | [`ubuntu-server/`](ubuntu-server/) | Ubuntu Server setup | ✅ |
 | [`docker/n8n/`](docker/n8n/) | n8n + PostgreSQL + Discord Bot | ✅ |
 | [`docker/nginx-proxy-manager/`](docker/nginx-proxy-manager/) | Nginx reverse proxy + SSL | ✅ |
-| [`docker/llm/`](docker/llm/) | Local Qwen3.8 27B Q8, Gufo/ROCm, private API | ✅ |
 | [`security/ufw/`](security/ufw/) | UFW firewall | 🔜 |
 
 ---
